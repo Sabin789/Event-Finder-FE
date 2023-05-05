@@ -1,0 +1,9 @@
+.profilePic{
+ height: 50px;
+ border-radius: 50%;
+}
+.profileCont{
+    display: flex;
+    background-color: antiquewhite;
+    border-radius: 20px;
+}

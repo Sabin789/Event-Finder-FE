@@ -22,8 +22,7 @@ const user=useSelector((state: RootState) => state.user.user)
     dispatch(getCurrentUserEvents())
     setEvent(id)
     dispatch(getEventComments(id))
-    console.log(comments)
-  },[dispatch])
+  },[])
  
 const handleDelete=(a:string)=>{
     dispatch(DeleteComment(a))
@@ -34,7 +33,7 @@ const handleDelete=(a:string)=>{
 
 const handlePost=()=>{
     dispatch(postComment(info))
-    dispatch(getEventComments(id))
+    
 }
 
    return (
@@ -46,7 +45,7 @@ const handlePost=()=>{
       <p>{oneEvent!.description}</p>
       {/* <img src={event.picture} alt={event.name} /> */}
       {oneEvent.user===user!._id?
-                 <Button>Edit</Button>:""}
+                 <Button>Edit</Button>:<Button>Join</Button>}
     </div>
     <div>
     <Form.Group>
@@ -65,7 +64,9 @@ const handlePost=()=>{
             {comments.map(comment=>{
                 // console.log(comment.text)
                return <div key={comment._id}>
-                 <p>{comment.text}</p>
+                <><p>{comment.text}</p>
+                <p>{comment.createdAt.toString()}</p>
+                </> 
                  {comment.user===user!._id?
                  <>
                  <Button>Edit</Button>

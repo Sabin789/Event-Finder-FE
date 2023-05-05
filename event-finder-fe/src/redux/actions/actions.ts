@@ -5,9 +5,9 @@ import UserSlice, { getPremium, getUserFailure, getUserStart,
      getUserSuccess, updateAvatarFailure, updateAvatarStart,
       updateUserAvatarSuccess, updateUserFailure, updateUserStart,
        updateUserSuccess } from '../reducers/UserSlice';
-import { add, getEventById, getEventsFailure, getEventsSucess, getEventStart, join, like, likeFailure, likeStart, updateEventPicture } from '../reducers/EventSlice';
+import { add, DeleteEvents, getEventById, getEventsFailure, getEventsSucess, getEventStart, join, like, likeFailure, likeStart, updateEventPicture } from '../reducers/EventSlice';
 import { getPostsFailure, getPostsStart, getPostsSuccess,addPost } from '../reducers/PostSlice';
-import { getCommentsFailure, getCommentsStart, getCommentsSuccess, PostComments } from '../reducers/CommentSlice';
+import { DeleteComments, getCommentsFailure, getCommentsStart, getCommentsSuccess, PostComments } from '../reducers/CommentSlice';
 
 
 
@@ -248,7 +248,7 @@ export const LikeUnlike = (id: string) => {
           },
         });
         const data = await res.json();
-        dispatch(like(data));
+         dispatch(like(data)); 
       } catch (error:any) {
         dispatch(likeFailure(error));
       }
@@ -343,7 +343,25 @@ export const addPosts=(info:any)=>{
                     "Content-Type": "application/json"
                   }
             })
-            
+     
+            dispatch(DeleteComments(id))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+  }
+
+  export const DeleteEvent=(id:string)=>{
+    return async(dispatch:Dispatch)=>{
+        try {
+            const res=await fetch("http://localhost:3001/Events/"+id,{
+                method:"DELETE",
+                headers:{
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    "Content-Type": "application/json"
+                  }
+            })
+            dispatch(DeleteEvents(id))
         } catch (error) {
             console.log(error)
         }

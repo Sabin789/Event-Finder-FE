@@ -34,6 +34,7 @@ const commentsSlice = createSlice({
       state.comments = action.payload || [];
       state.loading = false;
       state.error = null;
+      console.log(action.payload)
     },
     getCommentsFailure(state, action: PayloadAction<string>) {
       state.loading = false;
@@ -44,8 +45,9 @@ const commentsSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
-    DeleteComments(state, action: PayloadAction<Comment[]>) {
-      state.comments=action.payload
+    DeleteComments(state, action: PayloadAction<string>) {
+      const commentId = action.payload;
+      state.comments = state.comments.filter(comment => comment._id !== commentId);
       state.loading = false;
       state.error = null;
     }
@@ -55,7 +57,8 @@ const commentsSlice = createSlice({
 export const { getCommentsStart,
    getCommentsSuccess,
     getCommentsFailure,
-  PostComments } =
+  PostComments,
+DeleteComments } =
   commentsSlice.actions;
 
 export default commentsSlice.reducer;

@@ -68,8 +68,8 @@ const eventSlice = createSlice({
         state.events[eventIndex].members = newMembers;
       }
     },
-    add(state,action:PayloadAction<Event[]>){
-      state.events = action.payload;
+    add(state,action:PayloadAction<Event>){
+      state.events.push(action.payload)
       state.loading = false;
       state.error = null;
     },
@@ -81,9 +81,11 @@ const eventSlice = createSlice({
       const updatedEvents = state.events.map(event =>
         event._id === _id ? { ...event, likes } : event
       );
-      state.events = updatedEvents;
-      state.loading = false;
-
+      return {
+        ...state,
+        loading: false,
+        events: updatedEvents,
+      };
     },
     likeFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -108,6 +110,12 @@ const eventSlice = createSlice({
         state.events = [];
         state.error = `Event with ID ${eventId} not found`;
       }
+    },
+    DeleteEvents(state,action:PayloadAction<string>){
+      const eventId = action.payload;
+      state.events = state.events.filter(event => event._id !== eventId);
+      state.loading = false;
+      state.error = null;
     }
   },
 });
@@ -122,7 +130,8 @@ export const {
     like,
     likeFailure,
     updateEventPicture,
-  getEventById } =
+  getEventById,
+  DeleteEvents } =
   eventSlice.actions;
 
 export default eventSlice.reducer;

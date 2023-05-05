@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { getCurrentUserEvents, joinLeave, LikeUnlike } from "../../redux/actions/actions";
+import { DeleteEvent, getCurrentUserEvents, joinLeave, LikeUnlike } from "../../redux/actions/actions";
 import { RootState, useAppDispatch } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
 
@@ -39,7 +39,7 @@ const Feed = () => {
             {user!._id === event.user ?
      <>      
   <Button>Edit</Button> 
-  <Button>Delete</Button>
+  <Button onClick={()=>dispatch(DeleteEvent(event._id))}>Delete</Button>
   </> :
  
   !event.members.includes(user!._id) ?

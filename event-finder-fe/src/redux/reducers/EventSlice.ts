@@ -10,7 +10,12 @@ interface Event {
   picture: string; 
   ActiveStatus: boolean;
   Private: boolean;
-  user: string;
+  user: {
+    _id:string;
+    name: string;
+    email: string;
+    avatar: string;
+  };
   members: string[];
   limit?: number;
   likes: string[];
@@ -34,7 +39,7 @@ const initialState: EventsState = {
 
 interface JoinEventPayload {
   eventId: string;
-  newMembers: string[];
+  newMembers: string;
 }
 interface LikeEventPayload {
   eventId: string;
@@ -63,9 +68,22 @@ const eventSlice = createSlice({
     },
     join: (state, action: PayloadAction<JoinEventPayload>) => {
       const { eventId, newMembers } = action.payload;
-      const eventIndex = state.events.findIndex(event => event._id === eventId);
-      if (eventIndex !== -1) {
-        state.events[eventIndex].members = newMembers;
+      const event = state.events.find(event => event._id === eventId);
+      const members=event?.members
+      if (members) {
+       if(!members.includes(newMembers[0])){
+        event.members.push(...newMembers);
+        state.loading = false;
+        state.error = null;
+        console.log("true",(newMembers))
+       }else{
+        console.log("kjbhv")
+       const array=members.filter((member)=>member!==newMembers[0])
+       event.members=array
+       }
+      } else {
+        state.loading = false;
+        state.error = `Event with ID ${eventId} not found`;
       }
     },
     add(state,action:PayloadAction<Event>){

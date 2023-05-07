@@ -8,6 +8,7 @@ import UserSlice, { getPremium, getUserFailure, getUserStart,
 import { add, DeleteEvents, getEventById, getEventsFailure, getEventsSucess, getEventStart, join, like, likeFailure, likeStart, updateEventPicture } from '../reducers/EventSlice';
 import { getPostsFailure, getPostsStart, getPostsSuccess,addPost } from '../reducers/PostSlice';
 import { DeleteComments, getCommentsFailure, getCommentsStart, getCommentsSuccess, PostComments } from '../reducers/CommentSlice';
+import { getUsersFailure, getUsersStart, getUsersSucess } from '../reducers/AllUsersSlice';
 
 
 
@@ -29,6 +30,24 @@ export const getCurrentUser=()=>{
         } catch (error:any) {
             console.log(error)
             dispatch(getUserFailure(error))
+        }
+    }
+}
+
+export const getAllUsers=()=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch(getUsersStart())
+        try {
+            const res= await fetch("http://localhost:3001/Users",
+            {
+                    method:"GET",
+            headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }})
+         const data= await res.json()
+         dispatch(getUsersSucess(data))
+        } catch (error:any) {
+            dispatch(getUsersFailure(error))
         }
     }
 }
@@ -75,6 +94,23 @@ export const getCurrentUserEvents=()=>{
         } catch (error:any) {
             console.log(error)
             dispatch(getEventsFailure(error))
+        }
+    }
+}
+
+
+export const getEventUser=(id:string)=>{
+    return async(disptach:Dispatch)=>{
+        try {
+            const res= await fetch("http://localhost:3001/Events/"+id+"/user",{
+                method:"GET",
+                headers:{
+                    Authorization:`Bearer ${localStorage.getItem("accessToken")}`
+                }
+            })
+            const data = await res.json()
+        } catch (error) {
+            console.log(error)
         }
     }
 }
@@ -219,23 +255,25 @@ export const getPremiumUser=()=>{
     }
 }
 
-export const joinLeave=(id:string)=>{
-    return async(dispatch: Dispatch)=>{
-        try {
-           const res= await fetch(`http://localhost:3001/Users/${id}/joinLeave`,{
-                method:"POST",
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                  }
-            })
-            const data=await res.json()
-            console.log(data)
-            dispatch(join(data))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-}
+export const joinLeave = (id: string, newMember: string) => {
+    return async (dispatch: Dispatch) => {
+      try {
+        const res = await fetch(`http://localhost:3001/Users/${id}/joinLeave`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({ newMember }),
+        });
+        const data = await res.json();
+       
+        dispatch(join({ eventId: id, newMembers:[newMember] }));
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  }
 
 export const LikeUnlike = (id: string) => {
     return async (dispatch: Dispatch) => {

@@ -1,4 +1,11 @@
 
+interface reqs{
+  _id:String,
+  name:String,
+  email:String
+}
+
+
 export interface User {
     _id: string;
     name: string;
@@ -15,7 +22,7 @@ export interface User {
     address: string;
     followers: string[];
     following: string[];
-    eventReqs: string[];
+    eventReqs: reqs[];
     reports: Report[];
     reportPoints: number;
     createdAt: Date;

@@ -1,11 +1,11 @@
 import { Dispatch } from 'redux';
 
 
-import UserSlice, { getPremium, getUserFailure, getUserStart,
-     getUserSuccess, updateAvatarFailure, updateAvatarStart,
+import{ followUnfollow, getById, getPremium, getUserFailure, getUserStart,
+     getUserSuccess, updateAvatarStart,
       updateUserAvatarSuccess, updateUserFailure, updateUserStart,
        updateUserSuccess } from '../reducers/UserSlice';
-import { add, DeleteEvents, getEventById, getEventsFailure, getEventsSucess, getEventStart, join, like, likeFailure, likeStart, updateEventPicture } from '../reducers/EventSlice';
+import { add, DeleteEvents, getEventById, getEventsFailure, getEventsSucess, getEventStart, join, like, likeFailure, likeStart, updateEvent, updateEventPicture } from '../reducers/EventSlice';
 import { getPostsFailure, getPostsStart, getPostsSuccess,addPost } from '../reducers/PostSlice';
 import { DeleteComments, getCommentsFailure, getCommentsStart, getCommentsSuccess, PostComments } from '../reducers/CommentSlice';
 import { getUsersFailure, getUsersStart, getUsersSucess } from '../reducers/AllUsersSlice';
@@ -17,7 +17,7 @@ export const getCurrentUser=()=>{
         dispatch(getUserStart());
 
         try {
-             const response = await fetch("http://localhost:3001/Users/me", {
+             const response = await fetch(process.env.REACT_APP_BE_PROD as string +"/Users/me", {
                 method:"GET",
             headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -38,7 +38,7 @@ export const getAllUsers=()=>{
     return async(dispatch:Dispatch)=>{
         dispatch(getUsersStart())
         try {
-            const res= await fetch("http://localhost:3001/Users",
+            const res= await fetch(process.env.REACT_APP_BE_PROD as string +"/Users",
             {
                     method:"GET",
             headers: {
@@ -58,7 +58,7 @@ export const getCurrentUserPosts=()=>{
         dispatch(getPostsStart());
 
         try {
-             const response = await fetch("http://localhost:3001/Users/me/posts", {
+             const response = await fetch(process.env.REACT_APP_BE_PROD as string +"/Users/me/posts", {
                 method:"GET",
             headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -81,7 +81,7 @@ export const getCurrentUserEvents=()=>{
         dispatch(getEventStart());
 
         try {
-             const response = await fetch("http://localhost:3001/Users/me/events", {
+             const response = await fetch(process.env.REACT_APP_BE_PROD as string +"/Users/me/events", {
                 method:"GET",
             headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -90,6 +90,7 @@ export const getCurrentUserEvents=()=>{
       const data = await response.json();
       if(data){
         dispatch(getEventsSucess(data));
+        console.log(data)
       }
         } catch (error:any) {
             console.log(error)
@@ -99,21 +100,21 @@ export const getCurrentUserEvents=()=>{
 }
 
 
-export const getEventUser=(id:string)=>{
-    return async(disptach:Dispatch)=>{
-        try {
-            const res= await fetch("http://localhost:3001/Events/"+id+"/user",{
-                method:"GET",
-                headers:{
-                    Authorization:`Bearer ${localStorage.getItem("accessToken")}`
-                }
-            })
-            const data = await res.json()
-        } catch (error) {
-            console.log(error)
-        }
-    }
-}
+// export const getEventUser=(id:string)=>{
+//     return async(disptach:Dispatch)=>{
+//         try {
+//             const res= await fetch(process.env.REACT_APP_BE_PROD as string +"/Events/"+id+"/user",{
+//                 method:"GET",
+//                 headers:{
+//                     Authorization:`Bearer ${localStorage.getItem("accessToken")}`
+//                 }
+//             })
+//             const data = await res.json()
+//         } catch (error) {
+//             console.log(error)
+//         }
+//     }
+// }
 
 
 
@@ -121,7 +122,7 @@ export const getPostComments=(id:string)=>{
     return async (dispatch: Dispatch) => {
         dispatch(getCommentsStart());
         try {
-             const response = await fetch("http://localhost:3001/Posts/"+id+"/comms", {
+             const response = await fetch(process.env.REACT_APP_BE_PROD as string +"/Posts/"+id+"/comms", {
             method:"GET",
             headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -144,7 +145,7 @@ export const getEventComments=(id:any)=>{
     return async (dispatch: Dispatch) => {
         dispatch(getCommentsStart());
         try {
-             const response = await fetch("http://localhost:3001/Events/"+id+"/comms", {
+             const response = await fetch(process.env.REACT_APP_BE_PROD as string +"/Events/"+id+"/comms", {
                 method:"GET",
             headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -166,7 +167,7 @@ export const updateUser=(info:any)=>{
     return async(dispatch:Dispatch)=>{
         dispatch(updateUserStart())
         try {
-            const response=await fetch("http://localhost:3001/Users/me",{
+            const response=await fetch(process.env.REACT_APP_BE_PROD as string +"/Users/me",{
                 method: "PUT",
                 headers: {
                   "Content-type": "application/json",
@@ -200,7 +201,8 @@ export const updateAvatar = (file: File | null) => {
         });
         const data = await response.json();
         console.log(response);
-        dispatch(updateUserAvatarSuccess(data));
+        dispatch(updateUserAvatarSuccess(data.avatarURL));
+        console.log(data)
         return data;
       }
     } catch (error:any) {
@@ -210,13 +212,12 @@ export const updateAvatar = (file: File | null) => {
   };
 };
 
-export const updatePicture = (id:string,file: File | null) => {
+export const updatePicture = (id: string, file: File | null) => {
     return async (dispatch: Dispatch) => {
-      
       try {
         if (file) {
           const formData = new FormData();
-          formData.append('Avatar', file);
+          formData.append('Picture', file);
           const response = await fetch(`http://localhost:3001/Events/${id}/picture`, {
             method: 'POST',
             headers: {
@@ -225,17 +226,15 @@ export const updatePicture = (id:string,file: File | null) => {
             body: formData,
           });
           const data = await response.json();
-    dispatch(updateEventPicture(data))
-
+          dispatch(updateEventPicture({ eventId: id, Picture: data.Picture }));
+          console.log(data);
         }
-      } catch (error:any) {
+      } catch (error: any) {
         console.log(error);
-       
-    
       }
     };
   };
-
+  
 
 export const getPremiumUser=()=>{
     return async(dispatch: Dispatch)=>{
@@ -267,8 +266,12 @@ export const joinLeave = (id: string, newMember: string) => {
         });
         const data = await res.json();
        
-        dispatch(join({ eventId: id, newMembers:[newMember] }));
-
+        if (res.ok) {
+            const updatedEvent = data.event
+            dispatch(join({ eventId: id, newMembers: [newMember] }))
+        }else{
+            console.log("error")
+        }
       } catch (error) {
         console.log(error);
       }
@@ -293,31 +296,32 @@ export const LikeUnlike = (id: string) => {
     };
   }
 
-export const addEvent=(info:any)=>{
-  return async(dispatch:Dispatch)=>{
-    try {
-        const res= await fetch("http://localhost:3001/Events",{
-            method:"POST",
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(info)
-        })
-        const data=await res.json()
-       
+export const addEvent = (info: any) => {
+    return async (dispatch: Dispatch) => {
+      try {
+        const res = await fetch(process.env.REACT_APP_BE_PROD as string +"/Events", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(info)
+        });
+        const data = await res.json()
+        console.log(data)
         dispatch(add(data))
-       
-    } catch (error) {
-        console.log(error)
-    }
+        return data
+  
+      } catch (error) {
+        console.log(error);
+      }
+    };
   }
-}
 
 export const addPosts=(info:any)=>{
     return async(dispatch:Dispatch)=>{
       try {
-          const res= await fetch("http://localhost:3001/Posts",{
+          const res= await fetch(process.env.REACT_APP_BE_PROD as string +"/Posts",{
               method:"POST",
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -338,13 +342,14 @@ export const addPosts=(info:any)=>{
  export const getEvent=(id:string)=>{
     return async (dispatch:Dispatch)=>{
         try {
-            const res= await fetch("http://localhost:3001/Events/"+id,{
+            const res= await fetch(process.env.REACT_APP_BE_PROD as string +"/Events/"+id,{
                 method:"GET",
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
                   }})
                   const data= await res.json()
                   dispatch(getEventById(data._id))
+                  console.log(data)
         } catch (error) {
             console.log(error)
         }
@@ -354,7 +359,7 @@ export const addPosts=(info:any)=>{
   export const postComment=(info:any)=>{
     return async(dispatch:Dispatch)=>{
         try {
-            const res=await fetch("http://localhost:3001/Comments/",{
+            const res=await fetch(process.env.REACT_APP_BE_PROD as string +"/Comments/",{
               method:"POST",
               headers:{
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -374,7 +379,7 @@ export const addPosts=(info:any)=>{
   export const DeleteComment=(id:string)=>{
     return async(dispatch:Dispatch)=>{
         try {
-            const res=await fetch("http://localhost:3001/Comments/"+id,{
+            const res=await fetch(process.env.REACT_APP_BE_PROD as string +"/Comments/"+id,{
                 method:"DELETE",
                 headers:{
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -392,7 +397,7 @@ export const addPosts=(info:any)=>{
   export const DeleteEvent=(id:string)=>{
     return async(dispatch:Dispatch)=>{
         try {
-            const res=await fetch("http://localhost:3001/Events/"+id,{
+            const res=await fetch(process.env.REACT_APP_BE_PROD as string +"/Events/"+id,{
                 method:"DELETE",
                 headers:{
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -405,3 +410,61 @@ export const addPosts=(info:any)=>{
         }
     }
   }
+
+  export const follow=(id:string)=>{
+    return async(dispatch:Dispatch)=>{
+        try {
+            const baseUrl=process.env.REACT_APP_BE_PROD as string +"/Users/"+id+"/FollowUnfollow"
+        const res= await fetch(baseUrl,{
+            method:"PUT",
+            headers:{
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                "Content-Type": "application/json"
+              }
+        })
+        const data= await res.json()
+        dispatch(followUnfollow(data))
+        
+    } catch (error) {
+          console.log(error)  
+    }
+    }
+  }
+
+  export const updateEvents=(id:string,info:any)=>{
+    return async(dispatch:Dispatch)=>{
+
+        try {
+            const response=await fetch(process.env.REACT_APP_BE_PROD as string +"/Events/"+id,{
+                method: "PUT",
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+                body: JSON.stringify(info),
+              })
+              const data = await response.json();
+              console.log(data)
+              dispatch(updateEvent(data))
+        } catch (error:any) {
+            console.log(error)
+
+        }
+    }
+}
+export const getUserById=(id:string)=>{
+    return async(dispatch:Dispatch)=>{
+        try {
+            const response=await fetch(process.env.REACT_APP_BE_PROD as string +"/Users/"+id,{
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              })
+              const data=await response.json()
+              dispatch(getById(data))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}

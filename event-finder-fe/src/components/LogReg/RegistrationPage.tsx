@@ -1,9 +1,10 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import {Form,Button,Dropdown  } from "react-bootstrap";
-
+import "../../Css/register.css"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 const RegistrationPage = () => {
     const[name,setName]=useState("")
     const[password,setPassword]=useState("")
@@ -13,6 +14,8 @@ const RegistrationPage = () => {
     const navigate = useNavigate();
     const [interestedIn, setinterestedIn] = useState<string[]>([]);
 
+
+    
       
         const handleSelect = (eventKey: string) => {
           const items = [...interestedIn];
@@ -33,12 +36,16 @@ const RegistrationPage = () => {
         }
       };
 
-    
+    useEffect(()=>{
+
+    })
 
     const handleSubmit = async (e: FormEvent) => {
+      const url=`${process.env.REACT_APP_BE_PROD}/Users`
         try {
           e.preventDefault();
-          const response = await axios.post("http://localhost:3001/Users", {
+     
+          const response = await axios.post(url,{
             name,
             email,
             password,
@@ -50,48 +57,72 @@ const RegistrationPage = () => {
           navigate("/"); 
         } catch (error) {
           console.log(error);
+          console.log(url)
         }
       };
-
-
+      const { isLoaded } = useJsApiLoader({
+        googleMapsApiKey:process.env.REACT_APP_API_KEY as string,
+        libraries:["places"]
+      })
+      const handleAddressSelect = (address: string) => {
+        setAdress(address);
+      }
+      
     return ( 
-    <>
-    <h1>Please fill in the required fileds</h1>
+      <div className="register-body">
+               <h2>Please fill in the required fileds</h2>
+      <div className="section">
+
+    <div className="form-box">
+   
     <Form onSubmit={handleSubmit}>
-    <Form.Group>
-  <Form.Label>Name</Form.Label>
-    <Form.Control 
+    <Form.Group className="inputbox">
+
+    <input 
     type="text" 
     placeholder="Name"
     onChange={(val) => setName(val.currentTarget.value)} />
   </Form.Group>
-  <Form.Group controlId="formBasicEmail">
-    <Form.Label>Email address</Form.Label>
-    <Form.Control
+  <Form.Group controlId="formBasicEmail" className="inputbox">
+
+    <input
      type="email" 
      placeholder="Enter email" 
      onChange={(val) => setEmail(val.currentTarget.value)}/>
   </Form.Group>
-  <Form.Group controlId="formBasicPassword">
-    <Form.Label>Password</Form.Label>
-    <Form.Control 
+  <Form.Group controlId="formBasicPassword" className="inputbox">
+
+    <input 
     type="password" 
     placeholder="Password"
     onChange={(val) => setPassword(val.currentTarget.value)} />
   </Form.Group>
-  <Form.Group>
-  <Form.Label>Bio</Form.Label>
-    <Form.Control 
+  <Form.Group className="inputbox">
+
+    <input 
     type="text" 
     placeholder="Bio"
     onChange={(val) => setBio(val.currentTarget.value)} />
   </Form.Group>
-  <Form.Group>
-  <Form.Label>Adress</Form.Label>
-    <Form.Control 
-    type="text" 
-    placeholder="Adress"
-    onChange={(val) => setAdress(val.currentTarget.value)} />
+  <Form.Group className="inputbox">
+
+{isLoaded&&<Autocomplete
+    onLoad={(autocomplete) => {
+      autocomplete.addListener("place_changed", () => {
+        const selectedPlace = autocomplete.getPlace();
+        if (selectedPlace && selectedPlace.formatted_address) {
+          handleAddressSelect(selectedPlace.formatted_address);
+        }
+      });
+    }}
+  >
+    <input
+      type="text"
+      placeholder="Address"
+      onChange={(val) => setAdress(val.currentTarget.value)}
+    />
+  </Autocomplete>}
+
   </Form.Group>
   <Form.Group>
   <Form.Label>Things you are interested in</Form.Label>
@@ -150,11 +181,13 @@ const RegistrationPage = () => {
     </Dropdown>
 
   </Form.Group>
-  <Button variant="primary" type="submit">
+  <Button variant="success" type="submit" className="button">
     Register
   </Button>
 </Form>
-    </>
+    </div>
+    </div>
+    </div>
      );
 }
  

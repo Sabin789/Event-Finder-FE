@@ -3,12 +3,14 @@ import { User } from "./storeSlice";
 
 interface UserState {
   user: User | null;
+  viewedUser: User | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: UserState = {
   user: null,
+  viewedUser:null,
   loading: false,
   error: null,
 };
@@ -39,6 +41,7 @@ const userSlice = createSlice({
     },
     updateUserSuccess(state, action: PayloadAction<User>) {
       state.user = action.payload;
+      console.log(state.user)
       state.loading = false;
       state.error = null;
     },
@@ -64,6 +67,16 @@ const userSlice = createSlice({
    state.user!.premiumPoints-=300
    state.loading = false;
    state.error = null;
+   },
+   followUnfollow(state,action:PayloadAction<User>){
+    state.user!.following=(action.payload.following)
+    state.loading = false;
+    state.error = null;
+   },
+   getById(state,action:PayloadAction<User>){
+    state.viewedUser=action.payload
+    state.loading = false;
+    state.error = null;
    }
   },
 });
@@ -78,7 +91,9 @@ export const {
   updateAvatarStart,
   updateUserAvatarSuccess,
   updateAvatarFailure,
-  getPremium
+  getPremium,
+  followUnfollow,
+  getById
 } = userSlice.actions;
 
 export default userSlice.reducer;

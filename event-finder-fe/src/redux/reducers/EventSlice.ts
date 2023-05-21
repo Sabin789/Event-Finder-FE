@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 // import { Event } from "./storeSlice";
 
 interface Event {
@@ -7,7 +8,7 @@ interface Event {
   address: string;
   description: string;
   tags: string[];
-  picture: string; 
+  Picture: string; 
   ActiveStatus: boolean;
   Private: boolean;
   user: {
@@ -15,12 +16,15 @@ interface Event {
     name: string;
     email: string;
     avatar: string;
+    eventReqs:string[];
   };
   members: string[];
   limit?: number;
   likes: string[];
   createdAt: Date;
   updatedAt: Date;
+  date:Date
+  time:string
 }
 
 interface EventsState {
@@ -39,16 +43,13 @@ const initialState: EventsState = {
 
 interface JoinEventPayload {
   eventId: string;
-  newMembers: string;
+  newMembers: string[];
 }
-interface LikeEventPayload {
-  eventId: string;
-  newLike: string[];
-}
-interface UpdateEventPicturePayload {
-  eventId: string;
-  picture: string;
-}
+// interface LikeEventPayload {
+//   eventId: string;
+//   newLike: string[];
+// }
+
 const eventSlice = createSlice({
   name: "events",
   initialState,
@@ -71,21 +72,30 @@ const eventSlice = createSlice({
       const event = state.events.find(event => event._id === eventId);
       const members=event?.members
       if (members) {
-       if(!members.includes(newMembers[0])){
-        event.members.push(...newMembers);
-        state.loading = false;
-        state.error = null;
-        console.log("true",(newMembers))
-       }else{
-        console.log("kjbhv")
-       const array=members.filter((member)=>member!==newMembers[0])
-       event.members=array
-       }
+        if(!members.includes(newMembers[0])){
+          if (event.Private) {
+
+            const user = event.user
+            if (user) {
+              user.eventReqs.push(eventId);
+              console.log(user)
+            }
+          } else {
+            event.members.push(...newMembers);
+          }
+          state.loading = false;
+          state.error = null;
+     
+        } else {
+   
+          const array=members.filter((member)=>member!==newMembers[0])
+          event.members=array
+        }
       } else {
         state.loading = false;
         state.error = `Event with ID ${eventId} not found`;
       }
-    },
+    } ,
     add(state,action:PayloadAction<Event>){
       state.events.push(action.payload)
       state.loading = false;
@@ -109,11 +119,13 @@ const eventSlice = createSlice({
       state.loading = false;
       console.log(action.payload);
     },
-    updateEventPicture(state, action: PayloadAction<UpdateEventPicturePayload>) {
-      const { eventId, picture } = action.payload;
+  
+    updateEventPicture(state, action: PayloadAction<{ eventId: string; Picture: string }>) {
+      const { eventId, Picture } = action.payload;
       const eventIndex = state.events.findIndex(event => event._id === eventId);
       if (eventIndex !== -1) {
-        state.events[eventIndex].picture = picture;
+        console.log("id:",eventId,"Picture:",Picture)
+        state.events[eventIndex].Picture = Picture;
       }
     },
     getEventById(state, action: PayloadAction<string>) {
@@ -134,6 +146,23 @@ const eventSlice = createSlice({
       state.events = state.events.filter(event => event._id !== eventId);
       state.loading = false;
       state.error = null;
+    },
+    updateEvent(state, action: PayloadAction<Event>) {
+      const updatedEvent = action.payload;
+      const eventId = updatedEvent._id;
+    
+      const eventIndex = state.events.findIndex((event) => event._id === eventId);
+     
+      if (eventIndex !== -1) {
+        const updatedEvents = [...state.events];
+        updatedEvents[eventIndex] = updatedEvent;
+
+        
+        state.events = updatedEvents;
+        
+        state.loading = false;
+        state.error = null;
+      }
     }
   },
 });
@@ -149,7 +178,8 @@ export const {
     likeFailure,
     updateEventPicture,
   getEventById,
-  DeleteEvents } =
+  DeleteEvents,
+updateEvent } =
   eventSlice.actions;
 
 export default eventSlice.reducer;

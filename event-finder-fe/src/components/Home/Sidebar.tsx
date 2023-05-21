@@ -9,6 +9,7 @@ import EventModal from "./EventModal";
 import PostModal from "./PostModal";
 
 
+
 const Sidebar = () => {
     const dispatch = useAppDispatch();
   const user=useSelector((state:RootState)=>state.user.user)
@@ -30,14 +31,14 @@ const Sidebar = () => {
 
   useEffect(() => {
     dispatch(getCurrentUser())
-  }, []);
+  }, [dispatch]);
 
-
+  
   return <>
-  {!user? <h1>Loading</h1>:
+  {!user? <h1>Loading</h1>:user&&
   <Container>
     <Row>
-    <div className="profileCont">
+    <div className="mt-2 profileCont">
         <div>
         <img src={user.avatar}
          alt="Profile picture"
@@ -46,24 +47,25 @@ const Sidebar = () => {
          />
          </div>
          <div>
-        <h3>{user.name}</h3>
-        <p>{user.email}</p>
-        <p>{user._id}</p>
+        <h3 className="no-space">{user.name}</h3>
+        <p className="no-space2">{user.email}</p>
         </div>
         </div>
-        <div>
-            <h3>Followers:{user.followers.length}</h3>
-            <h3>Following:{user.following.length}</h3>
-            <h4 className="mt-3">Feed</h4>
-            <h4 className="mt-3">Posts</h4>
-            <h4 className="mt-3">Events</h4>
-            <h4 className="mt-3">You might like</h4>
+        <div className="comp-cont">
+            <h5 className="sidebar-comp">Followers:{user.followers&& user.followers.length}</h5>
+            <h5 className="sidebar-comp">Following:{user.following&& user.following.length}</h5>
+            <h5 className="mt-3 sidebar-comp">Home</h5>
+            <h5 className="mt-3 sidebar-comp">Notifications</h5>
+            <h5 className="mt-3 sidebar-comp">Events</h5>
+            <h5 className="mt-3 sidebar-comp">Bookmarks</h5>
         </div>
-        <Button onClick={handleShow3}>Make a Post</Button>
         {user.Premium===true?<Button onClick={handleShow2}>Add Event</Button>:
         <Button onClick={()=>dispatch(getPremiumUser())}>Buy Premium</Button>
         }
-<AvatarEdit handleClose={handleClose} show={show}/>
+ {user && (
+            <AvatarEdit handleClose={handleClose} show={show} user={user} />
+          )}
+          
 <EventModal handleClose2={handleClose2} show2={show2}/>
 <PostModal  handleClose={handleClose3} show={show3} />
     </Row>

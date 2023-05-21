@@ -1,13 +1,21 @@
 
+import { Event } from "../../redux/reducers/storeSlice";
 import { useState } from "react";
 import { Modal,Button, Dropdown } from "react-bootstrap";
 import { Form } from "react-bootstrap";
-import { addEvent, updatePicture } from "../../redux/actions/actions";
+import { addEvent, getCurrentUserEvents, updatePicture } from "../../redux/actions/actions";
 import { useAppDispatch } from "../../redux/store";
+import "../../Css/eventModal1.css"
+import {useJsApiLoader,Autocomplete, LoadScript} from "@react-google-maps/api"
 
 type EventEditProps = {
     handleClose2: () => void;
     show2: boolean;
+  }
+  declare global {
+    interface Window {
+      google: any;
+    }
   }
 
 const EventModal = ({handleClose2,show2}:EventEditProps) => {
@@ -18,7 +26,7 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
         }
       }
       const dispatch = useAppDispatch();
-
+      const [mapsLoaded, setMapsLoaded] = useState(false)
     const[name,setName]=useState("")
     const [imageData, setImageData] = useState<File | null>(null);
     const[description,setDescription]=useState("")
@@ -26,7 +34,8 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
     const [tags, settags] = useState<string[]>([]);
     const [limit,setLimit]=useState(Number)
     const [Private,setPrivate]=useState(false)
-
+    const [date,setDate]=useState("")
+    const [time,setTime]=useState("")
     const handleSelect = (eventKey: string) => {
         const items = [...tags];
         if (!items.includes(eventKey)) {
@@ -34,8 +43,10 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
           settags(items);
         }
       }
+      
+    
+   
 
-  
 
   const handleDeselect = (eventKey: string) => {
       const items = [...tags];
@@ -63,133 +74,175 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
         address,
         tags,
         limit,
-        Private
+        Private,
+        date,
+        time
     }
+    const handleAddressSelect = (address: string) => {
+        setAdress(address);
+      }
+    const handlePost = async () => {
+        if (imageData) {
+   
+          const eventResponse = await dispatch(addEvent(info));
+           const eventId=eventResponse._id
+          dispatch(updatePicture(eventId, imageData));
 
-    const handleEdit=()=>{
-        if(imageData){
-            dispatch(addEvent(info))
-            // dispatch(updatePicture(id,imageData))
-        }else{
-            dispatch(addEvent(info))
-        console.log(info)
+          handleClose2();
+          dispatch(getCurrentUserEvents());
+          console.log(info)
+        } else {
+          dispatch(addEvent(info));
+          handleClose2();
+          dispatch(getCurrentUserEvents());
+          console.log(info)
         }
-       }
-    return ( <>
-     <Modal 
-        show={show2}
-        onHide={handleClose2}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Add Event</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-       <Form>
-        <Form.Group>
-  <Form.Label>Name</Form.Label>
-    <Form.Control 
-    type="text" 
-    placeholder="Name"
-    onChange={(val) => setName(val.currentTarget.value)} />
-  </Form.Group>
-  <Form.Group>
-  <Form.Label>Description</Form.Label>
-    <Form.Control 
-    type="text" 
-    placeholder="Description"
-    onChange={(val) => setDescription(val.currentTarget.value)} />
-  </Form.Group>
-  <Form.Group>
-  <Form.Label>Adress</Form.Label>
-    <Form.Control 
-    type="text" 
-    placeholder="Adress"
-    onChange={(val) => setAdress(val.currentTarget.value)} />
-  </Form.Group>
-  <Form.Group>
-  <Form.Label>Limit</Form.Label>
-    <Form.Control 
-    type="number" 
-    placeholder="Limit"
-    onChange={(val) => handleLimitChange(val.currentTarget.value)}/>
-  </Form.Group>
-    <Dropdown>
-      <Dropdown.Toggle variant="success" id="dropdown-basic">
-        Status
-      </Dropdown.Toggle>
-      <Dropdown.Menu >
-      <Dropdown.Item onClick={() => setPrivate(true)}>True</Dropdown.Item>
-    <Dropdown.Item onClick={() => setPrivate(false)}>False</Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  </Form>
-  <Dropdown>
-      <Dropdown.Toggle variant="primary" id="dropdown-basic">
-        {tags.length === 0
-          ? "Select items"
-          : tags.join(", ")}
-      </Dropdown.Toggle>
+      }
 
-      <Dropdown.Menu>
-        <Form>
-          <Form.Check
-            type="checkbox"
-            label="Sports"
-            value="Sports"
-            checked={tags.includes("Sports")}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (e.target.checked) {
-                handleSelect("Sports");
-              } else {
-                handleDeselect("Sports");
-              }
-            }}
-          />
+    //   const { isLoaded } = useJsApiLoader({
+    //     googleMapsApiKey:process.env.REACT_APP_API_KEY as string,
+    //     libraries:["places"]
+    //   });
+      
+  
+    return (    
+  
+    <>
+<Modal 
+  show={show2}
+  onHide={handleClose2}
+  backdrop="static"
+  keyboard={false}
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Add Event</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group>
+        <Form.Label>Name</Form.Label>
+        <Form.Control 
+          type="text" 
+          placeholder="Name"
+          onChange={(val) => setName(val.currentTarget.value)}
+        />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Description</Form.Label>
+        <Form.Control 
+          type="text" 
+          placeholder="Description"
+          onChange={(val) => setDescription(val.currentTarget.value)}
+        />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Address</Form.Label>
+       
+           <LoadScript   googleMapsApiKey={process.env.REACT_APP_API_KEY as string}
+        libraries={["places"]}>
+       <Autocomplete className="autocomplete-event"
+                 onLoad={(autocomplete) => {
+                  autocomplete.addListener("place_changed", () => {
+                    console.log("hello")
+                    const selectedPlace = autocomplete.getPlace();
+                    if (selectedPlace && selectedPlace.formatted_address) {
+                      handleAddressSelect(selectedPlace.formatted_address);
+                    }
+                  });
+                }}
+                >
+                    <input
+                        type="text"
+                        placeholder="Address"
+                        onChange={(val) => setAdress(val.currentTarget.value)}
+                    />
+                </Autocomplete>
+</LoadScript>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Limit</Form.Label>
+        <Form.Control 
+          type="number" 
+          placeholder="Limit"
+          onChange={(val) => handleLimitChange(val.currentTarget.value)}
+        />
+      </Form.Group>
+      <Form.Group>
+      <Form.Label>Date</Form.Label>
+      <Form.Control
+                placeholder="Date"
+                aria-label="Username"
+                aria-describedby="basic-addon1"
+                id="put-experience-startdate"
+                type="date"
+                onChange={(val) => setDate(val.currentTarget.value)}
+              />
+      </Form.Group>
+      <Form.Label>Time</Form.Label>
+      <input 
+      type="time"
+      onChange={(val) => setTime(val.currentTarget.value)} />
+      <Dropdown>
+        <Dropdown.Toggle variant="primary" id="dropdown-basic">
+          {tags.length === 0 ? "Select items" : tags.join(", ")}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Form>
+            <Form.Check
+              type="checkbox"
+              label="Sports"
+              value="Sports"
+              checked={tags.includes("Sports")}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.checked) {
+                  handleSelect("Sports");
+                } else {
+                  handleDeselect("Sports");
+                }
+              }}
+            />
+            <Form.Check
+              type="checkbox"
+              label="Music"
+              value="Music"
+              checked={tags.includes("Music")}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.checked) {
+                  handleSelect("Music");
+                } else {
+                  handleDeselect("Music");
+                }
+              }}
+            />
+            <Form.Check
+              type="checkbox"
+              label="Travel"
+              value="Travel"
+              checked={tags.includes("Travel")}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.checked) {
+                  handleSelect("Travel");
+                } else {
+                  handleDeselect("Travel");
+                }
+              }}
+            />
+           
+          </Form>
+        </Dropdown.Menu>
+      </Dropdown>
+      <input type="file" onChange={handleChange} />
+    </Form>
+   
+  </Modal.Body>
+  <Modal.Footer>
+    <Button onClick={handleClose2}>Close</Button>
+    <Button onClick={handlePost}>Post Event</Button>
+  </Modal.Footer>
+</Modal>
 
-          <Form.Check
-            type="checkbox"
-            label="Music"
-            value="Music"
-            checked={tags.includes("Music")}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (e.target.checked) {
-                handleSelect("Music");
-              } else {
-                handleDeselect("Music");
-              }
-            }}
-          />
-
-          <Form.Check
-            type="checkbox"
-            label="Travel"
-            value="Travel"
-            checked={tags.includes("Travel")}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (e.target.checked) {
-                handleSelect("Travel");
-              } else {
-                handleDeselect("Travel");
-              }
-            }}
-          />
-        </Form>
-      </Dropdown.Menu>
-    </Dropdown>
-
-            <input type="file" onChange={handleChange} />
-          
-        </Modal.Body>
-        <Modal.Footer>
-          <Button  onClick={handleClose2}>
-            Close
-          </Button>
-          <Button onClick={()=>{handleEdit()}}>Post Event</Button>
-        </Modal.Footer>
-      </Modal>
-    </> );
+    </> 
+);
 }
- 
+
 export default EventModal;

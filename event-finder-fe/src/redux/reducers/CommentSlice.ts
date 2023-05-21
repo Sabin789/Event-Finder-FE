@@ -3,7 +3,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Comment {
   _id: string;
   text: string;
-  user: string;
+  user: {
+    _id:string
+    name:string
+    email:string
+    avatar:string
+  };
   post: string;
   event: string;
   createdAt: Date;
@@ -48,6 +53,7 @@ const commentsSlice = createSlice({
     DeleteComments(state, action: PayloadAction<string>) {
       const commentId = action.payload;
       state.comments = state.comments.filter(comment => comment._id !== commentId);
+      console.log(state.comments)
       state.loading = false;
       state.error = null;
     }

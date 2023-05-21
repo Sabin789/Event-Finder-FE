@@ -1,9 +1,36 @@
-.profilePic{
- height: 50px;
- border-radius: 50%;
-}
-.profileCont{
+.profileCont {
     display: flex;
-    background-color: antiquewhite;
-    border-radius: 20px;
-}
+    align-items: center;
+    margin-bottom: 2rem;
+    background-color: white;
+    border-radius: 10px;
+  }
+  
+  .profilePic {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+ 
+  .comp-cont {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: white;
+  }
+  button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sidebar-comp {
+    height: 40px;
+    width: 100%;
+  }
+  
+  .sidebar-comp:hover {
+    background-color: rgb(241, 236, 244);
+  }
+
+ 

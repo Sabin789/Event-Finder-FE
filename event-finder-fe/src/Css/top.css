@@ -1,0 +1,13 @@
+.top-h1{
+    margin-left: 25%;
+    font-size: 60px;
+}
+.top-desc{
+    color: grey;
+    margin-left: 30%;
+}
+.top-event-premium-button{
+    background-color: rgb(4, 45, 78)!important;
+    color: white!important;
+    width: 200px!important
+}

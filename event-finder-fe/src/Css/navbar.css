@@ -1,0 +1,25 @@
+.fluid {
+    display: flex;
+    justify-content: flex-end;
+    background-color: rgb(4, 45, 78)!important;
+  }
+  .navbar-with-padding{
+    padding-left: 7em!important;
+    padding-right: 7em!important;
+  }
+  .Search {
+    margin-left: 20%;
+    width: 40%;
+  }
+  
+  .user {
+    margin-left: auto; /* Push the div to the right */
+    display: flex;
+    align-items: center;
+   position: relative;
+  }
+  .user img {
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px; 
+  }

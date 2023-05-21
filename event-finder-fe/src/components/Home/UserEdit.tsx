@@ -2,20 +2,23 @@
 import { useEffect, useState } from "react";
 import { Modal,Button, InputGroup } from "react-bootstrap";
 import { Form } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import { getCurrentUser, updateAvatar, updateUser } from "../../redux/actions/actions";
-import { RootState, useAppDispatch } from "../../redux/store";
+import { User } from "../../redux/reducers/storeSlice";
+import { RootState, useAppDispatch, useAppSelector } from "../../redux/store";
 type AvatarEditProps = {
     handleClose: () => void;
     show: boolean;
+    user:User
   }
 
 
 
 
-const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
+const AvatarEdit = ({ handleClose, show,user }: AvatarEditProps) => {
 
     const [imageData, setImageData] = useState<File | null>(null);
-
+   
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const image = e.target.files && e.target.files[0];
         if (image) {
@@ -39,6 +42,15 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
         address?: string;
       }
     
+      useEffect(() => {
+        setName(user.name);
+        setPassword(user.password);
+        setEmail(user.email);
+        setBio(user.bio);
+        setAdress(user.address);
+      }, [user]);
+    
+
       const info:UserInfo={
         name,
         password,
@@ -52,12 +64,14 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
         if(imageData){
             dispatch(updateUser(info))
             dispatch(updateAvatar(imageData))
+            handleClose()
         }else{
         dispatch(updateUser(info))
         console.log(info)
+        handleClose()
         }
        }
-
+// console.log(user)
     return ( <>
         <Modal 
         show={show}
@@ -75,6 +89,7 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
     <Form.Control 
     type="text" 
     placeholder="Name"
+    value={name}
     onChange={(val) => setName(val.currentTarget.value)} />
   </Form.Group>
   <Form.Group controlId="formBasicEmail">
@@ -82,6 +97,7 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
     <Form.Control
      type="email" 
      placeholder="Enter email" 
+     value={email}
      onChange={(val) => setEmail(val.currentTarget.value)}/>
   </Form.Group>
   <Form.Group controlId="formBasicPassword">
@@ -89,6 +105,7 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
     <Form.Control 
     type="password" 
     placeholder="Password"
+    value={password}
     onChange={(val) => setPassword(val.currentTarget.value)} />
   </Form.Group>
   <Form.Group>
@@ -96,6 +113,7 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
     <Form.Control 
     type="text" 
     placeholder="Bio"
+    value={bio}
     onChange={(val) => setBio(val.currentTarget.value)} />
   </Form.Group>
   <Form.Group>
@@ -103,6 +121,7 @@ const AvatarEdit = ({ handleClose, show }: AvatarEditProps) => {
     <Form.Control 
     type="text" 
     placeholder="Adress"
+    value={address}
     onChange={(val) => setAdress(val.currentTarget.value)} />
   </Form.Group>
   </Form>

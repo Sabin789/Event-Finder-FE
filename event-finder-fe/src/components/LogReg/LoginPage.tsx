@@ -43,45 +43,47 @@ const signup=()=>{
     localStorage.clear();
   },[])
     return (
-    <>
-      <Container>
-        <Row>
-        <Col col="9" md="6">
-          </Col>
-          <Col md={5}>
+    <div className="login-body">
+      <Container className="section">
+        <Row className="form-box">
+        
+          <Col className="form-value">
           <Form onSubmit={handleSubmit} className="loginForm">
-  <Form.Group controlId="formBasicEmail">
-    <Form.Label>Email address</Form.Label>
-    <Form.Control
+            <h2 >Login</h2>
+            <div className="input-container">
+  <Form.Group controlId="formBasicEmail" className="inputbox">
+    <input
      type="email" 
      placeholder="Enter email" 
-     className="input"
+     className="inputbox"
      onChange={(val) => setEmail(val.currentTarget.value)}/>
   </Form.Group>
-  <Form.Group controlId="formBasicPassword">
-    <Form.Label>Password</Form.Label>
-    <Form.Control 
+  </div>
+  <div className="input-container">
+  <Form.Group controlId="formBasicPassword" className="inputbox">
+    <input 
     type="password" 
     placeholder="Password"
-    className="input"
+    className="inputbox"
     onChange={(val) => setPassword(val.currentTarget.value)} />
   </Form.Group>
+  </div>
   <div>
-  <Button variant="danger" type="submit" className="button mt-4">
+  <Button type="submit" className="button">
     Login
   </Button>
   </div>
    <br />
-  <Button variant="primary" type="submit" className="button mb-4"
-   onClick={()=>{signup()}}>
-    Sign Up
-  </Button>
+
+  <div className="register">
+   <p>Don't have a account yet? <a onClick={()=>{signup()}} className="link">Register</a></p>
+  </div>
 
 </Form>
           </Col>
         </Row>
      </Container>
-    </>
+    </div>
      );
 }
  

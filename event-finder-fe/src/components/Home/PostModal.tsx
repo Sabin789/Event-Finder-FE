@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { Modal,Button,Form,Dropdown } from "react-bootstrap";
 import { addPosts } from "../../redux/actions/actions";

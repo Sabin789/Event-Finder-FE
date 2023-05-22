@@ -1,3 +1,4 @@
+import React from "react";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { Navbar as BootstrapNavbar } from "react-bootstrap";
@@ -31,7 +32,7 @@ const navigate=useNavigate()
       };
   
       await axios
-        .delete("http://localhost:3001/Users/me/session", { headers })
+        .delete(process.env.REACT_APP_BE_PROD as string+"/Users/me/session", { headers })
         .then((response) => {
           const { data } = response as AxiosResponse;
           console.log(data);

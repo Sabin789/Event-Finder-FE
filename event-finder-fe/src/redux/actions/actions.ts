@@ -192,7 +192,7 @@ export const updateAvatar = (file: File | null) => {
       if (file) {
         const formData = new FormData();
         formData.append('Avatar', file);
-        const response = await fetch('http://localhost:3001/Users/me/avatar', {
+        const response = await fetch(process.env.REACT_APP_BE_PROD as string+'/Users/me/avatar', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -218,7 +218,7 @@ export const updatePicture = (id: string, file: File | null) => {
         if (file) {
           const formData = new FormData();
           formData.append('Picture', file);
-          const response = await fetch(`http://localhost:3001/Events/${id}/picture`, {
+          const response = await fetch(process.env.REACT_APP_BE_PROD as string+`/Events/${id}/picture`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -240,7 +240,7 @@ export const getPremiumUser=()=>{
     return async(dispatch: Dispatch)=>{
         dispatch(updateUserStart())
         try {
-             await fetch('http://localhost:3001/Users/premium', {
+             await fetch(process.env.REACT_APP_BE_PROD as string+"/Users/premium", {
                 method: 'POST',
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -257,7 +257,7 @@ export const getPremiumUser=()=>{
 export const joinLeave = (id: string, newMember: string) => {
     return async (dispatch: Dispatch) => {
       try {
-        const res = await fetch(`http://localhost:3001/Users/${id}/joinLeave`, {
+        const res = await fetch(process.env.REACT_APP_BE_PROD as string+`/Users/${id}/joinLeave`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -282,7 +282,7 @@ export const LikeUnlike = (id: string) => {
     return async (dispatch: Dispatch) => {
       dispatch(likeStart());
       try {
-        const res = await fetch(`http://localhost:3001/Users/${id}/likeUnlikeEvent`, {
+        const res = await fetch(process.env.REACT_APP_BE_PROD as string+`/Users/${id}/likeUnlikeEvent`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

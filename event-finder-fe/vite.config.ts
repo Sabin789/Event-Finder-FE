@@ -13,5 +13,13 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env': env,
     },
+    build: {
+      outDir: 'build', // Output directory for the build files
+      assetsDir: './public', // Directory for static assets (relative to outDir)
+      sourcemap: true, // Generate source maps
+      minify: true, // Minify the generated files
+      target: 'es2015', // Target browser compatibility
+      cssCodeSplit: true,
+    },
   };
 });

@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { RootState, useAppDispatch } from "../../../redux/store";
 import { useSelector } from "react-redux";
@@ -49,9 +49,10 @@ const handleShow = () => setShow(true);
 
 const [latLng, setLatLng] = useState({ lat: 1, lng: 1 })
 const [userLatLng,setUserLatLng]=useState({ lat: 1, lng: 1 })
-  const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: process.env.REACT_APP_API_KEY as string,
-      });
+const { isLoaded } = useJsApiLoader({
+  googleMapsApiKey:process.env.REACT_APP_API_KEY as string,
+  libraries:["places"]
+});
       
       
 const calculateRoute=async()=>{
@@ -73,9 +74,7 @@ if(results?.routes[0]?.legs[0]?.duration?.text){
 const handleLike = (id: string) => {
   dispatch(LikeUnlike(id));
 }
-if (loadError&& loadError) {
-  return <p>Error loading Google Maps API</p>;
-}
+
 
 if (isLoaded&&!isLoaded) {
   return <p>Loading...</p>;
@@ -110,7 +109,7 @@ if (isLoaded&&!isLoaded) {
       });
     }
     calculateRoute();
-  }, [isLoaded, loadError])
+  }, [isLoaded])
    return (
  
     oneEvent && <>
@@ -176,7 +175,7 @@ if (isLoaded&&!isLoaded) {
 </Col>
     <div>
      
-       {oneEvent && oneEvent.members && oneEvent.members.includes(user!._id) || oneEvent?.user._id === user?._id ?
+       {isLoaded&& oneEvent && oneEvent.members && oneEvent.members.includes(user!._id) || oneEvent?.user._id === user?._id ?
        <>
         <p>Distance: {distance}</p>
       <p>Duration: {duration}</p>
@@ -219,31 +218,32 @@ if (isLoaded&&!isLoaded) {
     </div>
 
     <div>
-        {!comments?"Lodaing":
-            <div className="container mt-3">
-            
-            {comments.map(comment=>{
-                // console.log(comment.text)
-               return <div key={comment._id} >
-
-                <div className="comment__card">
-                 <img className="event-user-pic" src={comment.user.avatar} />
-                 <p className="mx-2">{comment.user.name}</p>
-                 </div>
-                
-              <div className="d-flex comment-container">
-                 <p className="mr-5">{comment.text}</p>
-              
-                 {comment.user._id===user!._id?
-                 
-                 <p onClick={()=>{handleDelete(comment._id)}}
-                  className="delete-button mx-2">Delete</p>:""}
+    {comments ? (
+  <div className="container mt-3">
+    {comments.map((comment) => (
+      <div key={comment._id}>
+        <div className="comment__card">
+          {comment.user && comment.user.avatar && (
+            <img className="event-user-pic" src={comment.user.avatar} />
+          )}
+          {comment.user && comment.user.name && (
+            <p className="mx-2">{comment.user.name}</p>
+          )}
         </div>
-       
-               </div>
-            })}
-            </div>
-           }
+        <div className="d-flex comment-container">
+          {comment.text && <p className="mr-5">{comment.text}</p>}
+          {comment.user && comment.user._id === user!._id && (
+            <p onClick={() => handleDelete(comment._id)} className="delete-button mx-2">
+              Delete
+            </p>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <p>Loading...</p>
+)}
     </div>
    
     <EventModal handleClose={handleClose} show={show} _id={id as string}/>

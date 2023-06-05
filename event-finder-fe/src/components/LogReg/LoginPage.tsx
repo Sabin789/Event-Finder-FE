@@ -1,4 +1,4 @@
-import React from "react";
+
 import { FormEvent, useEffect, useState } from "react";
 import { Container,Row,Col } from "react-bootstrap";
 import { Form,Button } from "react-bootstrap";
@@ -18,7 +18,7 @@ const signup=()=>{
         try {
           e.preventDefault();
           await axios
-            .post("https://event-finder-be-production.up.railway.app/Users/login", {
+            .post(process.env.REACT_APP_BE_PROD+"/Users/login", {
               email,
               password,
             })

@@ -1,5 +1,4 @@
 
-import React from "react";
 import { useState } from "react";
 import { Modal,Button, Dropdown } from "react-bootstrap";
 import { Form } from "react-bootstrap";
@@ -45,7 +44,10 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
       }
       
     
-   
+      const { isLoaded } = useJsApiLoader({
+        googleMapsApiKey:process.env.REACT_APP_API_KEY as string,
+        libraries:["places"]
+      })
 
 
   const handleDeselect = (eventKey: string) => {
@@ -138,9 +140,8 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
       <Form.Group>
         <Form.Label>Address</Form.Label>
        
-           <LoadScript   googleMapsApiKey={process.env.REACT_APP_API_KEY as string}
-        libraries={["places"]}>
-       <Autocomplete className="autocomplete-event"
+   
+     {isLoaded&&  <Autocomplete className="autocomplete-event"
                  onLoad={(autocomplete) => {
                   autocomplete.addListener("place_changed", () => {
                     console.log("hello")
@@ -156,8 +157,8 @@ const EventModal = ({handleClose2,show2}:EventEditProps) => {
                         placeholder="Address"
                         onChange={(val) => setAdress(val.currentTarget.value)}
                     />
-                </Autocomplete>
-</LoadScript>
+                </Autocomplete>}
+
       </Form.Group>
       <Form.Group>
         <Form.Label>Limit</Form.Label>

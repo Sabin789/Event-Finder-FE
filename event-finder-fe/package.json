@@ -8,7 +8,6 @@
     "build": "vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "start": "vite preview"
-
   },
   "dependencies": {
     "@react-google-maps/api": "2.18.1",
